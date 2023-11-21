@@ -23,9 +23,9 @@
 - [ ] Datasets
 - [ ] Training
 - [ ] Testing
-- [x] [Results](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#Results)
-- [x] [Citation](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#Citation)
-- [x] [Acknowledgements](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#Acknowledgements)
+- [x] [Results](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-results)
+- [x] [Citation](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-citation)
+- [x] [Acknowledgements](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-acknowledgements)
 
 
 
