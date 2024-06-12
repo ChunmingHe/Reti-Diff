@@ -34,7 +34,7 @@
 We achieved state-of-the-art performance on *low light image enhancement*, *underwater image enhancement*, *backlit image enhancement* and corresponding downstream tasks. More results can be found in the paper.
 
 <details>
-<summary>Quantitative Comparison (click to expan)</summary>
+<summary>Quantitative Comparison (click to expand)</summary>
 
 - Results in Table 1 of the main paper
   <p align="center">
@@ -51,7 +51,7 @@ We achieved state-of-the-art performance on *low light image enhancement*, *unde
   </details>
 
 <details>
-<summary>Visual Comparison (click to expan)</summary>
+<summary>Visual Comparison (click to expand)</summary>
 
 - Results in Figure 3 of the main paper
   <p align="center">
