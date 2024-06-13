@@ -1,6 +1,6 @@
 # Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model
 
-[Chunming He](https://chunminghe.github.io/), [Chengyu Fang](https://chengyufang.tech/), [Yulun Zhang](https://yulunzhang.com), [Tian Ye](https://owen718.github.io), [Kai Li](https://kailigo.github.io), Longxiang Tang, Zhenhua Guo, Xiu Li and Sina Farsiu 
+[Chunming He](https://chunminghe.github.io/), [Chengyu Fang](https://cnyvfang.github.io/), [Yulun Zhang](https://yulunzhang.com), [Tian Ye](https://owen718.github.io), [Kai Li](https://kailigo.github.io), Longxiang Tang, Zhenhua Guo, Xiu Li and Sina Farsiu 
 
 "Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model", arXiv, 2023 [[arXiv]](https://arxiv.org/abs/2311.11638)
 
