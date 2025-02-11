@@ -259,8 +259,28 @@ def get_conv2d_layer(in_c, out_c, k, s, p=0, dilation=1, groups=1):
                     stride=s,
                     padding=p,dilation=dilation, groups=groups)
 
+class Decom(nn.Module):
+    def __init__(self,dim=48):
+        super().__init__()
+        self.decom = nn.Sequential(
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=4, k=3, s=1, p=1),
+            nn.ReLU()
+        )
 
-class RDIRformer(nn.Module):
+    def forward(self, input):
+        decom = self.decom(input)
+        R = decom[:, 0:3, :, :]
+        L = decom[:, 3:4, :, :]
+        img = R * L
+        return img, decom
+
+class RGFormer(nn.Module):
     def __init__(self,
                  inp_channels=3,
                  out_channels=3,
@@ -272,8 +292,9 @@ class RDIRformer(nn.Module):
                  bias=False,
                  LayerNorm_type='WithBias',  ## Other option 'BiasFree'
                  ):
-        super(RDIRformer, self).__init__()
+        super(RGFormer, self).__init__()
 
+        self.decom = Decom(dim=dim)
 
         self.patch_embed = OverlapPatchEmbed(inp_channels, dim)
 
@@ -325,6 +346,7 @@ class RDIRformer(nn.Module):
         inp_enc_level1 = self.patch_embed(inp_img)
         out_enc_level1, _ = self.encoder_level1([inp_enc_level1, k_v])
 
+        decom_img, _ = self.decom(out_enc_level1) # decom img copare with lq's R * L
 
         inp_enc_level2 = self.down1_2(out_enc_level1)
         out_enc_level2, _ = self.encoder_level2([inp_enc_level2, k_v])
@@ -347,6 +369,8 @@ class RDIRformer(nn.Module):
 
         inp_dec_level1 = self.up2_1(out_dec_level2)
 
+        _, decom_mat = self.decom(inp_dec_level1)
+
 
         inp_dec_level1 = torch.cat([inp_dec_level1, out_enc_level1], 1)
         out_dec_level1, _ = self.decoder_level1([inp_dec_level1, k_v])
@@ -355,11 +379,13 @@ class RDIRformer(nn.Module):
 
         out_dec_level1 = self.img_output(out_dec_level1) + inp_img
 
-        return out_dec_level1
+        out_rex = (decom_img,decom_mat)
 
-class CPEN(nn.Module):
+        return out_dec_level1, out_rex
+
+class PE(nn.Module):
     def __init__(self, input_channels=32, n_feats=64, n_encoder_res=6):
-        super(CPEN, self).__init__()
+        super(PE, self).__init__()
         E1 = [nn.Conv2d(input_channels, n_feats, kernel_size=3, padding=1),
               nn.LeakyReLU(0.1, True)]
         E2 = [
@@ -396,9 +422,9 @@ class CPEN(nn.Module):
 
 
 
-class RCPEN(nn.Module):
+class RPE(nn.Module):
     def __init__(self, input_channels=32, n_feats=64, n_encoder_res=6):
-        super(RCPEN, self).__init__()
+        super(RPE, self).__init__()
         E1R = [nn.Conv2d(int(input_channels / 4 * 3), n_feats, kernel_size=3, padding=1),
               nn.LeakyReLU(0.1, True)]
         E1I = [nn.Conv2d(int(input_channels / 4), n_feats, kernel_size=3, padding=1),
@@ -497,7 +523,7 @@ class denoise(nn.Module):
         return fea
 
 @ARCH_REGISTRY.register()
-class RetiDiffS2_Interface(nn.Module):
+class RetiDiffS2(nn.Module):
     def __init__(self,
                  n_encoder_res=6,
                  inp_channels=3,
@@ -513,10 +539,10 @@ class RetiDiffS2_Interface(nn.Module):
                  linear_start=0.1,
                  linear_end=0.99,
                  timesteps=4):
-        super(RetiDiffS2_Interface, self).__init__()
+        super(RetiDiffS2, self).__init__()
 
         # Generator
-        self.G = RDIRformer(
+        self.G = RGFormer(
             inp_channels=inp_channels,
             out_channels=out_channels,
             dim=dim,
@@ -528,8 +554,8 @@ class RetiDiffS2_Interface(nn.Module):
             LayerNorm_type=LayerNorm_type,  ## Other option 'BiasFree'
         )
 
-        self.img_condition = CPEN(input_channels=48, n_feats=64, n_encoder_res=n_encoder_res)
-        self.rex_condition = RCPEN(input_channels=64, n_feats=64, n_encoder_res=n_encoder_res)
+        self.img_condition = PE(input_channels=48, n_feats=64, n_encoder_res=n_encoder_res)
+        self.rex_condition = RPE(input_channels=64, n_feats=64, n_encoder_res=n_encoder_res)
 
         self.img_denoise = denoise(n_feats=64, n_denoise_res=n_denoise_res, timesteps=timesteps)
         self.rex_denoise = denoise(n_feats=64, n_denoise_res=n_denoise_res, timesteps=timesteps)
@@ -551,15 +577,15 @@ class RetiDiffS2_Interface(nn.Module):
 
             pred_IPR_list = [pred_IPR_list_rex, pred_IPR_list_img]
 
-            sr = self.G(img, IPRS2_rex, IPRS2_img)
+            sr, rex = self.G(img, IPRS2_rex, IPRS2_img)
 
-            return sr, pred_IPR_list
+            return sr, pred_IPR_list, rex
 
         else:
             IPRS2_rex = self.rex_diffusion(retinex)
             IPRS2_img = self.img_diffusion(img)
 
-            sr = self.G(img, IPRS2_rex, IPRS2_img)
+            sr, _ = self.G(img, IPRS2_rex, IPRS2_img)
 
             return sr
 

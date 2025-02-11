@@ -22,7 +22,7 @@ datasets:
 
 # network structures
 network_g:
-  type: S2_Interface
+  type: RetiDiffS2_Interface
   n_encoder_res: 5
   inp_channels: 3
   out_channels: 3

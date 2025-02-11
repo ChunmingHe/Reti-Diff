@@ -1,12 +1,11 @@
 import archs.common as common
-from ldm.ddpm import DDPM
-import archs.attention as attention
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pdb import set_trace as stx
 import numbers
 from basicsr.utils.registry import ARCH_REGISTRY
+from torch.nn import functional as F
 from einops import rearrange
 
 
@@ -176,9 +175,7 @@ class Rttention(nn.Module):
         attn = attn.softmax(dim=-1)
 
         out = (attn @ v)
-
         out = rearrange(out, 'b head c (h w) -> b (head c) h w', head=self.num_heads, h=h, w=w)
-
         out = self.project_out(out)
         return out
 
@@ -259,8 +256,28 @@ def get_conv2d_layer(in_c, out_c, k, s, p=0, dilation=1, groups=1):
                     stride=s,
                     padding=p,dilation=dilation, groups=groups)
 
+class Decom(nn.Module):
+    def __init__(self,dim=48):
+        super().__init__()
+        self.decom = nn.Sequential(
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=dim, k=3, s=1, p=1),
+            nn.LeakyReLU(0.2, inplace=True),
+            get_conv2d_layer(in_c=dim, out_c=4, k=3, s=1, p=1),
+            nn.ReLU()
+        )
 
-class RDIRformer(nn.Module):
+    def forward(self, input):
+        decom = self.decom(input)
+        R = decom[:, 0:3, :, :]
+        L = decom[:, 3:4, :, :]
+        img = R * L
+        return img, decom
+
+class RGFormer(nn.Module):
     def __init__(self,
                  inp_channels=3,
                  out_channels=3,
@@ -272,8 +289,9 @@ class RDIRformer(nn.Module):
                  bias=False,
                  LayerNorm_type='WithBias',  ## Other option 'BiasFree'
                  ):
-        super(RDIRformer, self).__init__()
+        super(RGFormer, self).__init__()
 
+        self.decom = Decom(dim=dim)
 
         self.patch_embed = OverlapPatchEmbed(inp_channels, dim)
 
@@ -325,6 +343,7 @@ class RDIRformer(nn.Module):
         inp_enc_level1 = self.patch_embed(inp_img)
         out_enc_level1, _ = self.encoder_level1([inp_enc_level1, k_v])
 
+        decom_img, _ = self.decom(out_enc_level1)
 
         inp_enc_level2 = self.down1_2(out_enc_level1)
         out_enc_level2, _ = self.encoder_level2([inp_enc_level2, k_v])
@@ -347,6 +366,8 @@ class RDIRformer(nn.Module):
 
         inp_dec_level1 = self.up2_1(out_dec_level2)
 
+        _, decom_mat = self.decom(inp_dec_level1)
+
 
         inp_dec_level1 = torch.cat([inp_dec_level1, out_enc_level1], 1)
         out_dec_level1, _ = self.decoder_level1([inp_dec_level1, k_v])
@@ -355,11 +376,13 @@ class RDIRformer(nn.Module):
 
         out_dec_level1 = self.img_output(out_dec_level1) + inp_img
 
-        return out_dec_level1
+        out_rex = (decom_img,decom_mat)
 
-class CPEN(nn.Module):
+        return out_dec_level1, out_rex
+
+class PE(nn.Module):
     def __init__(self, input_channels=32, n_feats=64, n_encoder_res=6):
-        super(CPEN, self).__init__()
+        super(PE, self).__init__()
         E1 = [nn.Conv2d(input_channels, n_feats, kernel_size=3, padding=1),
               nn.LeakyReLU(0.1, True)]
         E2 = [
@@ -388,17 +411,21 @@ class CPEN(nn.Module):
         )
         self.pixel_unshuffle = nn.PixelUnshuffle(4)
 
-    def forward(self, x):
-        x = self.pixel_unshuffle(x)
+    def forward(self, x, gt):
+        gt0 = self.pixel_unshuffle(gt)
+        x0 = self.pixel_unshuffle(x)
+        x = torch.cat([x0, gt0], dim=1)
         fea = self.E(x).squeeze(-1).squeeze(-1)
+        S1_IPR = []
         fea1 = self.mlp(fea)
-        return fea1
+        S1_IPR.append(fea1)
+        return fea1, S1_IPR
 
 
 
-class RCPEN(nn.Module):
+class RPE(nn.Module):
     def __init__(self, input_channels=32, n_feats=64, n_encoder_res=6):
-        super(RCPEN, self).__init__()
+        super(RPE, self).__init__()
         E1R = [nn.Conv2d(int(input_channels / 4 * 3), n_feats, kernel_size=3, padding=1),
               nn.LeakyReLU(0.1, True)]
         E1I = [nn.Conv2d(int(input_channels / 4), n_feats, kernel_size=3, padding=1),
@@ -450,54 +477,24 @@ class RCPEN(nn.Module):
 
         self.pixel_unshuffle = nn.PixelUnshuffle(4)
 
-    def forward(self, x):
+    def forward(self, x, gt):
         # b, 4, h, w = x.shape
+        gt0 = self.pixel_unshuffle(gt) # b, 64, h/4, w/4
         x0 = self.pixel_unshuffle(x) # b, 64, h/4, w/4
-        x_r = x0[:,0:48,:,:]
-        x_i = x0[:,48:,:,:]
+        x_r = torch.cat([x0[:,0:48,:,:], gt0[:,0:48,:,:]], dim=1)
+        x_i = torch.cat([x0[:,48:,:,:], gt0[:,48:,:,:]], dim=1)
         fea_R = self.E_R(x_r).squeeze(-1).squeeze(-1)
         fea_I = self.E_I(x_i).squeeze(-1).squeeze(-1)
+        S1_IPR = []
         fea_R = self.mlp_R(fea_R) # b, 192
         fea_I = self.mlp_I(fea_I) # b, 64
         fea1 = torch.cat([fea_R, fea_I], dim=1)
-        return fea1
+        S1_IPR.append(fea1)
+        return fea1, S1_IPR
 
-
-class ResMLP(nn.Module):
-    def __init__(self,n_feats = 512):
-        super(ResMLP, self).__init__()
-        self.resmlp = nn.Sequential(
-            nn.Linear(n_feats , n_feats ),
-            nn.LeakyReLU(0.1, True),
-        )
-    def forward(self, x):
-        res=self.resmlp(x)
-        return res
-
-
-class denoise(nn.Module):
-    def __init__(self, n_feats=64, n_denoise_res=5, timesteps=5):
-        super(denoise, self).__init__()
-        self.max_period = timesteps * 10
-        n_featsx4 = 4 * n_feats
-        resmlp = [
-            nn.Linear(n_featsx4 * 2 + 1, n_featsx4),
-            nn.LeakyReLU(0.1, True),
-        ]
-        for _ in range(n_denoise_res):
-            resmlp.append(ResMLP(n_featsx4))
-        self.resmlp = nn.Sequential(*resmlp)
-
-    def forward(self, x, t, c):
-        t = t.float()
-        t = t / self.max_period
-        t = t.view(-1, 1)
-        c = torch.cat([c, t, x], dim=1)
-        fea = self.resmlp(c)
-        return fea
 
 @ARCH_REGISTRY.register()
-class RetiDiffS2_Interface(nn.Module):
+class RetiDiffS1(nn.Module):
     def __init__(self,
                  n_encoder_res=6,
                  inp_channels=3,
@@ -509,14 +506,11 @@ class RetiDiffS2_Interface(nn.Module):
                  ffn_expansion_factor=2.66,
                  bias=False,
                  LayerNorm_type='WithBias',  ## Other option 'BiasFree'
-                 n_denoise_res=1,
-                 linear_start=0.1,
-                 linear_end=0.99,
-                 timesteps=4):
-        super(RetiDiffS2_Interface, self).__init__()
+                 ):
+        super(RetiDiffS1, self).__init__()
 
         # Generator
-        self.G = RDIRformer(
+        self.G = RGFormer(
             inp_channels=inp_channels,
             out_channels=out_channels,
             dim=dim,
@@ -528,38 +522,33 @@ class RetiDiffS2_Interface(nn.Module):
             LayerNorm_type=LayerNorm_type,  ## Other option 'BiasFree'
         )
 
-        self.img_condition = CPEN(input_channels=48, n_feats=64, n_encoder_res=n_encoder_res)
-        self.rex_condition = RCPEN(input_channels=64, n_feats=64, n_encoder_res=n_encoder_res)
+        self.E_rex = RPE(input_channels=128, n_feats=64, n_encoder_res=n_encoder_res)
+        self.E_img = PE(input_channels=96, n_feats=64, n_encoder_res=n_encoder_res)
 
-        self.img_denoise = denoise(n_feats=64, n_denoise_res=n_denoise_res, timesteps=timesteps)
-        self.rex_denoise = denoise(n_feats=64, n_denoise_res=n_denoise_res, timesteps=timesteps)
+        self.pixel_unshuffle = nn.PixelUnshuffle(4)
 
-        self.img_diffusion = DDPM(denoise=self.img_denoise, condition=self.img_condition, n_feats=64, linear_start=linear_start,
-                              linear_end=linear_end, timesteps=timesteps)
-        self.rex_diffusion = DDPM(denoise=self.rex_denoise, condition=self.rex_condition, n_feats=64, linear_start=linear_start,
-                                  linear_end=linear_end, timesteps=timesteps)
+    def forward(self, inp_img, inp_gt, retinex):
+        x_r = retinex[0][0]
+        x_i = retinex[0][1]
+        gt_r = retinex[1][0]
+        gt_i = retinex[1][1]
 
-    def forward(self, img, retinex, IPRS1=None):
+        x = torch.cat([x_r, x_i], dim=1)
+        gt = torch.cat([gt_r, gt_i], dim=1)
 
         if self.training:
 
-            IPRS1_rex = IPRS1[0]
-            IPRS1_img = IPRS1[1]
+            IPRS1, S1_IPR = self.E_rex(x, gt)  # E is the PE (B, 256)
+            IPRS1I, S1_IPRI = self.E_img(inp_img, inp_gt)
 
-            IPRS2_rex, pred_IPR_list_rex = self.rex_diffusion(retinex, IPRS1_rex)
-            IPRS2_img, pred_IPR_list_img = self.img_diffusion(img, IPRS1_img)
+            sr, rex = self.G(inp_img, IPRS1, IPRS1I)
 
-            pred_IPR_list = [pred_IPR_list_rex, pred_IPR_list_img]
-
-            sr = self.G(img, IPRS2_rex, IPRS2_img)
-
-            return sr, pred_IPR_list
-
+            return sr, rex
         else:
-            IPRS2_rex = self.rex_diffusion(retinex)
-            IPRS2_img = self.img_diffusion(img)
+            IPRS1, _ = self.E_rex(x, gt)
 
-            sr = self.G(img, IPRS2_rex, IPRS2_img)
+            IPRS1I, _ = self.E_img(inp_img, inp_gt)
+
+            sr, _ = self.G(inp_img, IPRS1, IPRS1I)
 
             return sr
-
