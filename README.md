@@ -22,14 +22,64 @@
 
 ## 🔗 Contents
 
-- [ ] Datasets
+- [x] [Requirements](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-requirements)
 - [ ] Training
-- [ ] Testing
+- [x] [Testing](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-testing)
 - [x] [Results](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-results)
 - [x] [Citation](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-citation)
 - [x] [Acknowledgements](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-acknowledgements)
 
+## Requirements
 
+Test Datasets: [Google Drive](https://drive.google.com/file/d/1r7Xaj8TuL_afy0svCtAfaXPqDmDWwuNR/view?usp=sharing)
+
+Pretrained Models: [Google Drive](https://drive.google.com/file/d/13fHMg8DSLznjHqgB30khhP922EcbtpGG/view?usp=sharing)
+
+## ⚙️ Dependencies
+
+- Python 3.9
+- Pytorch 2.1
+- NVIDIA GPU + CUDA
+
+### Initialize Environment
+```bash
+git clone https://github.com/cnyvfang/Reti-Diff-demo.git
+cd Reti-Diff-demo
+conda create -n Reti-Diff python=3.9
+conda activate Reti-Diff
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+pip install -r requirements.txt
+python setup.py develop
+```
+
+### Install BasicSR
+```bash
+git clone https://github.com/xinntao/BasicSR.git
+cd BasicSR
+pip install tb-nightly -i https://mirrors.aliyun.com/pypi/simple
+pip install -r requirements.txt
+python setup.py develop
+cd ..
+```
+
+## ⚡️ Testing
+
+1. Put the Test Datasets into Datasets folder.
+
+2. Put the Pretrained Models into pretrained_models folder.
+
+3. Run the following command to test the model:
+
+```bash
+# LLIE
+sh test_LLIE.sh
+
+# UIE
+sh test_UIE.sh
+
+# Backlit
+sh test_Backlit.sh
+```
 
 ## 🔍 Results
 

@@ -1,0 +1,8 @@
+facexlib>=0.2.0.3
+numpy
+opencv-python
+Pillow
+tqdm
+timm
+einops
+thop
