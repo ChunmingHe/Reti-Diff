@@ -51,7 +51,7 @@ class DeblurPairedDataset(data.Dataset):
         self.io_backend_opt = opt['io_backend']
         self.mean = opt['mean'] if 'mean' in opt else None
         self.std = opt['std'] if 'std' in opt else None
-        
+
         self.gt_folder, self.lq_folder = opt['dataroot_gt'], opt['dataroot_lq']
         if 'filename_tmpl' in opt:
             self.filename_tmpl = opt['filename_tmpl']
@@ -64,7 +64,7 @@ class DeblurPairedDataset(data.Dataset):
             self.paths = paired_paths_from_lmdb(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'])
         elif 'meta_info_file' in self.opt and self.opt[
-                'meta_info_file'] is not None:
+            'meta_info_file'] is not None:
             self.paths = paired_paths_from_meta_info_file(
                 [self.lq_folder, self.gt_folder], ['lq', 'gt'],
                 self.opt['meta_info_file'], self.filename_tmpl)
@@ -114,11 +114,11 @@ class DeblurPairedDataset(data.Dataset):
             gt_size = self.opt['gt_size']
             img_h, img_w = img_gt.shape[:2]
             if img_h < gt_size and img_w < gt_size:
-                #crop
+                # crop
                 img_gt, img_lq = paired_random_crop(img_gt, img_lq, gt_size, scale,
-                                                gt_path)
+                                                    gt_path)
             else:
-                #resize
+                # resize
                 img_gt, img_lq = paired_resize(img_gt, img_lq, gt_size)
 
         if self.opt['dataset_type'] == 'scale_and_crop':
@@ -129,7 +129,8 @@ class DeblurPairedDataset(data.Dataset):
             img_gt, img_lq = paired_scale_BAID(img_gt, img_lq)
 
         # augmentation for training
-        if self.opt['phase'] == 'train' and self.opt['dataset_type'] != 'chaos' and self.opt['dataset_type'] != 'crop_or_resize':
+        if self.opt['phase'] == 'train' and self.opt['dataset_type'] != 'chaos' and self.opt[
+            'dataset_type'] != 'crop_or_resize':
             try:
                 gt_size = self.opt['gt_size']
                 # padding
@@ -153,7 +154,7 @@ class DeblurPairedDataset(data.Dataset):
         if self.mean is not None or self.std is not None:
             normalize(img_lq, self.mean, self.std, inplace=True)
             normalize(img_gt, self.mean, self.std, inplace=True)
-        
+
         return {
             'lq': img_lq,
             'gt': img_gt,
@@ -163,7 +164,6 @@ class DeblurPairedDataset(data.Dataset):
 
     def __len__(self):
         return len(self.paths)
-
 
 @DATASET_REGISTRY.register()
 class UnPairedDataset(data.Dataset):

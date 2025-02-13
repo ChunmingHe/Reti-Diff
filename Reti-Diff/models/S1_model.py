@@ -124,9 +124,11 @@ class RetiDiff_S1Model(SRModel):
 
         self.Decom_l = Decom().cuda()
         self.Decom_l = aux_load_initialize(self.Decom_l,opt['pretrain_decomnet_low'])
+        self.Decom_l.eval()
 
         self.Decom_h = Decom().cuda()
         self.Decom_h = aux_load_initialize(self.Decom_h,opt['pretrain_decomnet_high'])
+        self.Decom_h.eval()
 
     def setup_schedulers(self):
         """Set up schedulers."""

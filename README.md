@@ -73,10 +73,15 @@ cd ..
 
 ```bash
 # LLIE
-sh test_LLIE.sh
+sh test_LLIE_syn.sh
+or 
+sh test_LLIE_real.sh
 
 # UIE
-sh test_UIE.sh
+sh test_UIE_LSUI.sh
+or
+sh test_UIE_UIEB.sh
+
 
 # Backlit
 sh test_Backlit.sh

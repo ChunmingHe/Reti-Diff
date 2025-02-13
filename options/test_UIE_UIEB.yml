@@ -1,5 +1,5 @@
 # general settings
-name: BAID
+name: UIE_UIEB
 model_type: S2_Interface_Model
 scale: 1
 num_gpu: auto  # auto: can infer from your visible devices automatically. official: 4 GPUs
@@ -10,11 +10,12 @@ manual_seed: 0
 datasets:
   # Uncomment these for validation
   val_1:
-    name: BAID
+    name: Testset
     type: DeblurPairedDataset
-    dataroot_gt: ./Datasets/BAID_Official/output
-    dataroot_lq: ./Datasets/BAID_Official/input
-    dataset_type: BAID
+    dataroot_gt: # put your own path here
+    dataroot_lq: # put your own path here
+    dataset_type: chaos
+    gt_size: 256
     io_backend:
       type: disk
 
@@ -41,7 +42,7 @@ network_g:
 
 # path
 path:
-  pretrain_network_g: ./pretrained_models/uieb.pth
+  pretrain_network_g: ./pretrained_models/uie_uieb.pth
   param_key_g: params_ema
   strict_load_g: False
 

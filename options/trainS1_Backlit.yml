@@ -1,0 +1,127 @@
+# general settings
+name: RetiDiff_S1Model_Backlit
+model_type: RetiDiff_S1Model
+scale: 1
+num_gpu: auto  # auto: can infer from your visible devices automatically. official: 8 GPUs
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: TrainSet
+    type: DeblurPairedDataset
+    dataroot_gt: /data/fcy/Datasets/Backlit/BAID_FULL/train/output
+    dataroot_lq: /data/fcy/Datasets/Backlit/BAID_FULL/train/input
+    geometric_augs: true
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    dataset_type: ~
+
+    num_worker_per_gpu: 12
+    batch_size_per_gpu: 8
+    mini_batch_sizes: [ 4, 4, 2, 2, 1 ]            # Batch size per gpu
+    iters: [ 55000,25000, 29000, 23000,14000 ]
+    gt_size: 256   # Max patch size for progressive training
+    gt_sizes: [ 128, 160, 192, 224, 256 ]  # Patch sizes for progressive training.
+
+    # data loader
+    use_shuffle: true
+    dataset_enlarge_ratio: 500
+    prefetch_mode: ~
+
+  # Uncomment these for validation
+  val:
+    name: ValSet
+    type: DeblurPairedDataset
+    dataset_type: BAID
+    dataroot_gt: /data/fcy/Datasets/Backlit/BAID_FULL/test/output
+    dataroot_lq: /data/fcy/Datasets/Backlit/BAID_FULL/test/input
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: RetiDiffS1
+  n_encoder_res: 5
+  inp_channels: 3
+  out_channels: 3
+  dim: 64
+  num_blocks: [ 3,3,3,3 ]
+  num_refinement_blocks: 3
+  heads: [ 1,2,4,8 ]
+  ffn_expansion_factor: 2.66
+  bias: False
+  LayerNorm_type: WithBias
+
+pretrain_decomnet_low: pretrained_models/init_high.pth
+pretrain_decomnet_high: pretrained_models/init_high.pth
+
+# path
+path:
+  pretrain_network_g: ~
+  param_key_g: params_ema
+  strict_load_g: true
+  resume_state: ~
+
+# training settings
+train:
+  ema_decay: 0.999
+
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: 0
+    betas: [0.9, 0.999]
+
+  scheduler:
+    type: CosineAnnealingRestartCyclicLR
+    periods: [45000,105000]
+    restart_weights: [1,1]
+    eta_mins: [0.000255,0.000001]
+
+  total_iter: 150000
+  warmup_iter: -1  # no warm up
+
+  mixing_augs:
+    mixup: false
+    mixup_beta: 1.2
+    use_identity: true
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+# Uncomment these for validation
+# validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: False
+
+  metrics:
+    psnr: # metric name
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 1000
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

@@ -1,5 +1,5 @@
 # general settings
-name: LOLv2_Syn
+name: Backlit
 model_type: S2_Interface_Model
 scale: 1
 num_gpu: auto  # auto: can infer from your visible devices automatically. official: 4 GPUs
@@ -10,12 +10,11 @@ manual_seed: 0
 datasets:
   # Uncomment these for validation
   val_1:
-    name: LOLv2_Syn
+    name: Testset
     type: DeblurPairedDataset
-    batch_size: 1
-    dataroot_gt: ./Datasets/LOLv2_Syn/Normal
-    dataroot_lq: ./Datasets/LOLv2_Syn/Low
-    dataset_type: ~
+    dataroot_gt: # put your own path here
+    dataroot_lq: # put your own path here
+    dataset_type: BAID
     io_backend:
       type: disk
 
@@ -39,18 +38,19 @@ network_g:
   timesteps: 4
 
 
+
 # path
 path:
-  pretrain_network_g: ./pretrained_models/lolv2_syn.pth
+  pretrain_network_g: ./pretrained_models/backlit.pth
   param_key_g: params_ema
   strict_load_g: False
 
 pretrain_decomnet_low: pretrained_models/retinex_decomnet.pth
 
 
+
 val:
   window_size: 8
-  batch_size: 1
   save_img: True
   suffix: ~  # add suffix to saved images, if None, use exp name
 
@@ -63,3 +63,7 @@ val:
       type: calculate_ssim
       crop_border: 0
       test_y_channel: False
+
+
+
+
