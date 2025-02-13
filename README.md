@@ -5,7 +5,7 @@
 "Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model", ICLR, 2025 [[arXiv]](https://arxiv.org/abs/2311.11638)
 
 #### 🔥🔥🔥 News
-
+- **2025-02-13:** We release the code and pretrained models.
 - **2025-02-11:** We are updating the code in the repository, and the version currently in the repository is not the final release version.
 - **2023-11-21:** We release this repository.
 
@@ -15,16 +15,11 @@
 
 
 
-## 🔧 Todo
-
-- [ ] Complete this repository
-
-
 
 ## 🔗 Contents
 
 - [x] [Requirements](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-requirements)
-- [ ] Training
+- [x] [Training](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-training)
 - [x] [Testing](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-testing)
 - [x] [Results](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-results)
 - [x] [Citation](https://github.com/ChunmingHe/Reti-Diff/blob/main/README.md#-citation)
@@ -32,14 +27,12 @@
 
 ## Requirements
 
-Test Datasets: [Google Drive](https://drive.google.com/file/d/1r7Xaj8TuL_afy0svCtAfaXPqDmDWwuNR/view?usp=sharing)
-
-Pretrained Models: [Google Drive](https://drive.google.com/file/d/13fHMg8DSLznjHqgB30khhP922EcbtpGG/view?usp=sharing)
+Pretrained Models: [Google Drive](https://drive.google.com/drive/folders/1GeYHroTZhF6vT-vpd7Rw_MgYJNZadb7L?usp=sharing)
 
 ## ⚙️ Dependencies
 
 - Python 3.9
-- Pytorch 2.1
+- Pytorch 2.0.1
 - NVIDIA GPU + CUDA
 
 ### Initialize Environment
@@ -48,7 +41,8 @@ git clone https://github.com/cnyvfang/Reti-Diff-demo.git
 cd Reti-Diff-demo
 conda create -n Reti-Diff python=3.9
 conda activate Reti-Diff
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+pip install numpy==1.25.2
 pip install -r requirements.txt
 python setup.py develop
 ```
@@ -61,6 +55,28 @@ pip install tb-nightly -i https://mirrors.aliyun.com/pypi/simple
 pip install -r requirements.txt
 python setup.py develop
 cd ..
+```
+
+## 🧱 Training
+
+1. Put the Train Datasets into Datasets folder.
+
+2. Modify the config files in options folder and specific shell scripts.
+
+3. Run the shell scripts
+
+```bash
+# LLIE
+sh trainS1_LLIE.sh
+sh trainS2_LLIE.sh
+
+# UIE
+sh trainS1_UIE.sh
+sh trainS2_UIE.sh
+
+# Backlit
+sh trainS1_Backlit.sh
+sh trainS2_Backlit.sh
 ```
 
 ## ⚡️ Testing
