@@ -82,7 +82,6 @@ sh test_UIE_LSUI.sh
 or
 sh test_UIE_UIEB.sh
 
-
 # Backlit
 sh test_Backlit.sh
 ```
