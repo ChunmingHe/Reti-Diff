@@ -10,8 +10,8 @@ datasets:
   train:
     name: TrainSet
     type: DeblurPairedDataset
-    dataroot_gt: /data/fcy/Datasets/Underwater/UIEB/train/hq
-    dataroot_lq: /data/fcy/Datasets/Underwater/UIEB/train/lq
+    dataroot_gt: # put your own path here
+    dataroot_lq: # put your own path here
     geometric_augs: true
 
     filename_tmpl: '{}'

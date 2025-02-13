@@ -12,8 +12,8 @@ datasets:
   train:
     name: TrainSet
     type: DeblurPairedDataset
-    dataroot_gt: /data/fcy/Datasets/LLIE/LOLv2/Synthetic/Train/high
-    dataroot_lq: /data/fcy/Datasets/LLIE/LOLv2/Synthetic/Train/low
+    dataroot_gt: # put your own path here
+    dataroot_lq: # put your own path here
     geometric_augs: true
 
     dataset_type: ~
@@ -79,8 +79,8 @@ network_S1:
 
 # path
 path:
-  pretrain_network_g: experiments/train_DiffIRS2_LOLv2_Syn_guided_fix_RCPEN_2mlp_Rformer_cross_fix_mixup_dim64_33333/models/net_g_190000.pth
-  pretrain_network_S1: experiments/train_DiffIRS1_LOLv2_Syn_guided_fix_RCPEN_2mlp_Rformer_cross_fix_mixup_dim64_33333/models/net_g_195000.pth
+  pretrain_network_g: # put pretrained S1 model here
+  pretrain_network_S1: # put pretrained S1 model here
   param_key_g: params_ema
   strict_load_g: False
   resume_state: ~

@@ -10,8 +10,8 @@ datasets:
   train:
     name: TrainSet
     type: DeblurPairedDataset
-    dataroot_gt: /data/fcy/Datasets/Backlit/BAID_FULL/train/output
-    dataroot_lq: /data/fcy/Datasets/Backlit/BAID_FULL/train/input
+    dataroot_gt: # put your own path here
+    dataroot_lq: # put your own path here
     geometric_augs: true
 
     filename_tmpl: '{}'
