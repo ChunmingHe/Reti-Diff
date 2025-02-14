@@ -5,11 +5,9 @@
 <b><p align=center> <a href='https://arxiv.org/abs/2311.11638'><img src='https://img.shields.io/badge/ArXiv-2311.11638-red'></a>
   ICLRS2025 Spotlight ✨</p></b>
 
-# Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model
-
+**Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model, ICLR 2025, Spotlight [[Paper]](https://arxiv.org/abs/2311.11638)**
 [Chunming He](https://chunminghe.github.io/), [Chengyu Fang](https://cnyvfang.github.io/), [Yulun Zhang](https://yulunzhang.com), Longxiang Tang, Jinfa Huang, Kai Li, Zhenhua Guo, Xiu Li and Sina Farsiu 
 
-"Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model", ICLR 2025, Spotlight [[Paper]](https://arxiv.org/abs/2311.11638)
 
 #### 🔥🔥🔥 News
 - **2025-02-13:** We release the code and pretrained models.
