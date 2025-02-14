@@ -6,6 +6,7 @@
   ICLRS2025 Spotlight ✨</p></b>
 
 **Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model, ICLR 2025, Spotlight [[Paper]](https://arxiv.org/abs/2311.11638)**
+
 [Chunming He](https://chunminghe.github.io/), [Chengyu Fang](https://cnyvfang.github.io/), [Yulun Zhang](https://yulunzhang.com), Longxiang Tang, Jinfa Huang, Kai Li, Zhenhua Guo, Xiu Li and Sina Farsiu 
 
 
