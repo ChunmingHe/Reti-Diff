@@ -65,7 +65,7 @@ network_g:
 
 # network structures
 network_S1:
-  type: RetiDiffS2
+  type: RetiDiffS1
   n_encoder_res: 5
   inp_channels: 3
   out_channels: 3
