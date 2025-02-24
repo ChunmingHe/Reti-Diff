@@ -3,7 +3,7 @@
 # <p align=center> `Reti-Diff` </p>
 
 <b><p align=center> <a href='https://arxiv.org/abs/2311.11638'><img src='https://img.shields.io/badge/ArXiv-2311.11638-red'></a>
-  ICLRS2025 Spotlight ✨</p></b>
+  ICLR2025 Spotlight ✨</p></b>
 
 **Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model, ICLR 2025, Spotlight [[Paper]](https://arxiv.org/abs/2311.11638)**
 
