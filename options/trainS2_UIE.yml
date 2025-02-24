@@ -4,7 +4,7 @@ scale: 1
 num_gpu: auto  # auto: can infer from your visible devices automatically. official: 4 GPUs
 manual_seed: 0
 
-pretrain_decomnet_low: pretrained_models/init_high.pth
+pretrain_decomnet_low: pretrained_models/init_low.pth
 pretrain_decomnet_high: pretrained_models/init_high.pth
 
 # dataset and data loader settings

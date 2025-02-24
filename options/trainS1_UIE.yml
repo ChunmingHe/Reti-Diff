@@ -57,7 +57,7 @@ network_g:
   bias: False
   LayerNorm_type: WithBias
 
-pretrain_decomnet_low: pretrained_models/init_high.pth
+pretrain_decomnet_low: pretrained_models/init_low.pth
 pretrain_decomnet_high: pretrained_models/init_high.pth
 
 # path
