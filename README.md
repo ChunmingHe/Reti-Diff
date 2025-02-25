@@ -149,7 +149,7 @@ We achieved state-of-the-art performance on *low light image enhancement*, *unde
 
 ## 📎 Citation
 
-If you find the code helpful in your resarch or work, please cite the following paper(s).
+If you find the code helpful in your research or work, please cite the following paper(s).
 
 ```
 @article{he2023retidiff,
