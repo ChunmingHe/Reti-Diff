@@ -24,10 +24,10 @@ datasets:
 
     num_worker_per_gpu: 12
     batch_size_per_gpu: 8
-    mini_batch_sizes: [ 4,4,2,2,1 ]             # Batch size per gpu
-    iters: [ 65000,35000, 39000, 33000,24000 ]
-    gt_size: 256   # Max patch size for progressive training
-    gt_sizes: [ 128, 160, 192, 224, 256 ]  # Patch sizes for progressive training.
+    mini_batch_sizes: [ 8,4,2,2,1,1 ]             # Batch size per gpu
+    iters: [ 150000,60000,50000,60000,40000,40000 ]
+    gt_size: 512   # Max patch size for progressive training
+    gt_sizes: [ 192, 256,320,384,464,512 ]  # Patch sizes for progressive training.
 
     # data loader
     use_shuffle: true
@@ -101,14 +101,14 @@ train:
     milestones: [ 200000 ]
     gamma: 1
 
-  encoder_iter: 45000
-  total_iter: 200000
+  encoder_iter: 100000
+  total_iter: 400000
   lr_encoder: !!float 2e-4
   lr_sr: !!float 2e-4
-  gamma_encoder: 0.9
-  gamma_sr: 0.9
-  lr_decay_encoder: 5000
-  lr_decay_sr: 5000
+  gamma_encoder: 0.1
+  gamma_sr: 0.5
+  lr_decay_encoder: 60000
+  lr_decay_sr: 80000
   warmup_iter: -1  # no warm up
 
   mixing_augs:
