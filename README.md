@@ -152,13 +152,11 @@ We achieved state-of-the-art performance on *low light image enhancement*, *unde
 If you find the code helpful in your research or work, please cite the following paper(s).
 
 ```
-@article{he2023retidiff,
-      title={Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model}, 
-      author={Chunming He and Chengyu Fang and Yulun Zhang and Kai Li and Longxiang Tang and Chenyu You and Fengyang Xiao and Zhenhua Guo and Xiu Li},
-      year={2023},
-      eprint={2311.11638},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{he2025reti,
+  title={Reti-Diff: Illumination Degradation Image Restoration with Retinex-based Latent Diffusion Model},
+  author={He, Chunming and Fang, Chengyu and Zhang, Yulun and Li, Kai and Tang, Longxiang and You, Chenyu and Xiao, Fengyang and Guo, Zhenhua and Li, Xiu},
+  journal={ICLR},
+  year={2025}
 }
 ```
 
