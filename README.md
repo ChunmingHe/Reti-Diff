@@ -43,8 +43,8 @@ Pretrained Models: [Google Drive](https://drive.google.com/drive/folders/1GeYHro
 
 ### Initialize Environment
 ```bash
-git clone https://github.com/cnyvfang/Reti-Diff-demo.git
-cd Reti-Diff-demo
+git clone https://github.com/cnyvfang/Reti-Diff.git
+cd Reti-Diff
 conda create -n Reti-Diff python=3.9
 conda activate Reti-Diff
 conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
