@@ -10,22 +10,21 @@ datasets:
   train:
     name: TrainSet
     type: DeblurPairedDataset
-    dataroot_gt: # put your own path here
-    dataroot_lq: # put your own path here
+    dataroot_gt: /data/fcy/Datasets/Underwater/UIEB/train/gt
+    dataroot_lq: /data/fcy/Datasets/Underwater/UIEB/train/lq
     geometric_augs: true
 
     filename_tmpl: '{}'
     io_backend:
       type: disk
-
     dataset_type: chaos
 
     num_worker_per_gpu: 12
     batch_size_per_gpu: 8
-    mini_batch_sizes: [ 8,4,2,2,1,1 ]             # Batch size per gpu
-    iters: [ 92000,80000,38000,33000,33000,24000 ]
-    gt_size: 512   # Max patch size for progressive training
-    gt_sizes: [ 192, 256,320,384,464,512 ]  # Patch sizes for progressive training.
+    mini_batch_sizes: [ 4,4,2,2,1 ]             # Batch size per gpu
+    iters: [ 65000,35000, 39000, 33000,24000 ]
+    gt_size: 256   # Max patch size for progressive training
+    gt_sizes: [ 128, 160, 192, 224, 256 ]  # Patch sizes for progressive training.
 
     # data loader
     use_shuffle: true
@@ -38,7 +37,7 @@ datasets:
     type: DeblurPairedDataset
     dataset_type: chaos
     gt_size: 256   # Max patch size for progressive training
-    dataroot_gt: /data/fcy/Datasets/Underwater/UIEB/test/hq
+    dataroot_gt: /data/fcy/Datasets/Underwater/UIEB/test/gt
     dataroot_lq: /data/fcy/Datasets/Underwater/UIEB/test/lq
     io_backend:
       type: disk
@@ -75,15 +74,15 @@ train:
     type: AdamW
     lr: !!float 2e-4
     weight_decay: 0
-    betas: [0.9, 0.999]
+    betas: [ 0.9, 0.999 ]
 
   scheduler:
     type: CosineAnnealingRestartCyclicLR
-    periods: [ 92000, 208000 ]
+    periods: [ 65000,135000 ]
     restart_weights: [ 1,1 ]
-    eta_mins: [ 0.000255,0.000001 ]
+    eta_mins: [ 0.000235,0.000001 ]
 
-  total_iter: 300000
+  total_iter: 200000
   warmup_iter: -1  # no warm up
 
   mixing_augs:
